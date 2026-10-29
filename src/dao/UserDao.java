@@ -1,20 +1,19 @@
 package dao;
 
-import model.user;
+import model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
 
-    // Constructor to automatically ensure default admin is created on startup
     public UserDao() {
         createDefaultAdmin();
     }
 
     private void createDefaultAdmin() {
-        String checkSql = "SELECT COUNT(*) FROM users WHERE role = 'ADMIN'";
-        String insertSql = "INSERT INTO users(username, password, role, status) VALUES('admin', 'admin123', 'ADMIN', 'ACTIVE')";
+        String checkSql = "SELECT COUNT(*) FROM users WHERE roles = 'ADMIN'";
+        String insertSql = "INSERT INTO users(username, password, roles, status) VALUES('admin', 'admin123', 'ADMIN', 'ACTIVE')";
 
         try (Connection con = DatabaseConnection.getConnection();
              Statement stmt = con.createStatement();
@@ -29,8 +28,8 @@ public class UserDao {
         }
     }
 
-    public user loginUser(String username, String password) {
-        String sql = "SELECT id, username, password, role, status FROM users WHERE username = ? AND password = ?";
+    public User loginUser(String username, String password) {
+        String sql = "SELECT id, username, password, roles, status FROM users WHERE username = ? AND password = ?";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -50,11 +49,11 @@ public class UserDao {
                         return null;
                     }
 
-                    return new user(
+                    return new User(
                             rs.getInt("id"),
                             rs.getString("username"),
                             rs.getString("password"),
-                            rs.getString("role"),
+                            rs.getString("roles"),
                             rs.getString("status")
                     );
                 } else {
@@ -68,7 +67,7 @@ public class UserDao {
     }
 
     public boolean registerUser(String username, String password, String role) {
-        String sql = "INSERT INTO users(username, password, role, status) VALUES(?, ?, ?, 'PENDING')";
+        String sql = "INSERT INTO users(username, password, roles, status) VALUES(?, ?, ?, 'PENDING')";
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
@@ -85,18 +84,39 @@ public class UserDao {
         }
     }
 
-    public List<user> getPendingUsers() {
-        List<user> pendingList = new ArrayList<>();
+    public List<User> getAllUsers() {
+        List<User> userList = new ArrayList<>();
+        String sql = "SELECT * FROM users";
+        try (Connection con = DatabaseConnection.getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                userList.add(new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("roles"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching all users: " + e.getMessage());
+        }
+        return userList;
+    }
+
+    public List<User> getPendingUsers() {
+        List<User> pendingList = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE status = 'PENDING'";
         try (Connection con = DatabaseConnection.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                pendingList.add(new user(
+                pendingList.add(new User(
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password"),
-                        rs.getString("role"),
+                        rs.getString("roles"),
                         rs.getString("status")
                 ));
             }

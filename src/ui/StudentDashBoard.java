@@ -1,10 +1,10 @@
 package ui;
 
-import model.user;
+import model.User;
 import java.util.Scanner;
 
 public class StudentDashBoard {
-    public static void display(user student, Scanner sc) {
+    public static void display(User student, Scanner sc) {
         boolean back = false;
         while (!back) {
             System.out.println("\n=== STUDENT DASHBOARD ===");

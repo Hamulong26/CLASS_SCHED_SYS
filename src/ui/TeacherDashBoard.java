@@ -1,11 +1,11 @@
 package ui;
 
 import dao.LogDao;
-import model.user;
+import model.User;
 import java.util.Scanner;
 
 public class TeacherDashBoard {
-    public static void display(user teacher, Scanner sc) {
+    public static void display(User teacher, Scanner sc) {
         boolean back = false;
         while (!back) {
             System.out.println("\n=== TEACHER DASHBOARD ===");
